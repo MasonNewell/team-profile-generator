@@ -6,33 +6,7 @@ const path = require("path");
 const fs = require("fs");
 const { choices } = require("yargs");
 const { TestWatcher } = require("@jest/core");
-
-// Manager info
-const managerInfo = {
-  name: [],
-  title: [],
-  employeeId: [],
-  email: [],
-  officeNumber: [],
-};
-
-// Intern info
-const internInfo = {
-  name: [],
-  title: [],
-  employeeId: [],
-  email: [],
-  school: [],
-};
-
-// Engineer info
-const engineerInfo = {
-  name: [],
-  title: [],
-  employeeId: [],
-  email: [],
-  GitHub: [],
-};
+const teamList = [];
 
 // Add employee, or NONE to continue
 function addNewEmployee() {
@@ -101,11 +75,13 @@ function getManagerInfo(oldData) {
       },
     ])
     .then((data) => {
-      managerInfo.name.push(data.employeeName);
-      managerInfo.title.push(oldData.employeeTitle);
-      managerInfo.employeeId.push(data.employeeId);
-      managerInfo.email.push(data.employeeEmail);
-      managerInfo.officeNumber.push(data.officeNumber);
+      const manager = new Manager(
+        data.employeeName,
+        data.employeeId,
+        data.employeeEmail,
+        data.officeNumber
+      );
+      teamList.push(manager);
       addNewEmployee();
     });
 }
@@ -133,17 +109,19 @@ function getInternInfo(oldData) {
     ])
     // Add intern to intern object
     .then((data) => {
-      internInfo.name.push(data.employeeName);
-      internInfo.title.push(oldData.employeeTitle);
-      internInfo.employeeId.push(data.employeeId);
-      internInfo.email.push(data.employeeEmail);
-      internInfo.school.push(data.school);
+      const intern = new Intern(
+        data.employeeName,
+        data.employeeId,
+        data.employeeEmail,
+        data.school
+      );
+      teamList.push(intern);
       addNewEmployee();
     });
 }
 
 // Option 3: Add an Engineer to team
-function getEngineerInfo(data) {
+function getEngineerInfo(oldData) {
   inquirer
     .prompt([
       {
@@ -165,21 +143,78 @@ function getEngineerInfo(data) {
     ])
     // Add engineer to engineer object
     .then((data) => {
-      engineerInfo.name.push(data.employeeName);
-      engineerInfo.title.push(oldData.employeeTitle);
-      engineerInfo.employeeId.push(data.employeeId);
-      engineerInfo.email.push(data.employeeEmail);
-      engineerInfo.GitHub.push(data.GitHub);
+      const engineer = new Engineer(
+        data.employeeName,
+        data.employeeId,
+        data.employeeEmail,
+        data.GitHub
+      );
+      teamList.push(engineer);
       addNewEmployee();
     });
 }
 
 // create HTML with team info
 function showTeam() {
-  // Manager card(s)
-  // Engineer card(s)
-  // Intern card(s)
-}
+  // iterate through array of objects (manager, intern, engineer)
+  let html = `
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Bootstrap -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
+      crossorigin="anonymous"
+    />
+    <title>My Team</title>
+  </head>
+  <body>
+  <main class="d-flex justify-content-center">
+  <section class="row justify-content-center container card-container">`;
+  for (let value of teamList) {
+    html += `
+    <div class="rounded col-12 col-xl-4 col-md-6 py-5">
+    <div class="card">
+      <div class="card-header bg-primary text-white">
+        <h5 class="card-title">${value.getName()}</h5>
+        <h6 class="card-subtitle mb-2">${value.getRole()}</h6>
+      </div>
+      <div class="card-body">
+        <ul class="list-group my-3">
+          <li class="list-group-item"><p class="card-text">ID: ${value.getId()}</p></li>
+          <li class="list-group-item">Email: <a href="#" class="card-link">${value.getEmail()}</a></li>
+          <li class="list-group-item">${
+            value.hasOwnProperty("officeNumber")
+              ? "Office number: " + value.officeNumber
+              : value.hasOwnProperty("school")
+              ? "School: " + value.school
+              : value.hasOwnProperty("github")
+              ? `GitHub: <a href="#" class="card-link">` + value.github + `</a>`
+              : ""
+          }          
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>`;
+  }
+  html += `
+  </section>
+  </main>
+  <script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+    crossorigin="anonymous"
+  ></script>
+  <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+  </body>`;
 
+  fs.writeFile("TESTER.html", html, (err) => (err ? console.log(err) : console.log("Success!")));
+}
 // run program
 addNewEmployee();
