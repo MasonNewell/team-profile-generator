@@ -26,7 +26,7 @@ function addNewEmployee() {
             value: "Intern",
           },
           {
-            name: "engineer",
+            name: "Engineer",
             value: "Engineer",
           },
           {
@@ -187,14 +187,16 @@ function showTeam() {
       <div class="card-body">
         <ul class="list-group my-3">
           <li class="list-group-item"><p class="card-text">ID: ${value.getId()}</p></li>
-          <li class="list-group-item">Email: <a href="#" class="card-link">${value.getEmail()}</a></li>
+          <li class="list-group-item">Email: <a href="mailto:${value.getEmail()}" class="card-link">${value.getEmail()}</a></li>
           <li class="list-group-item">${
             value.hasOwnProperty("officeNumber")
               ? "Office number: " + value.officeNumber
               : value.hasOwnProperty("school")
               ? "School: " + value.school
               : value.hasOwnProperty("github")
-              ? `GitHub: <a href="#" class="card-link">` + value.github + `</a>`
+              ? `GitHub: <a href="https://github.com/${value.github}" target="_blank" class="card-link">` +
+                value.github +
+                `</a>`
               : ""
           }          
           </li>
@@ -214,7 +216,7 @@ function showTeam() {
   <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
   </body>`;
 
-  fs.writeFile("TESTER.html", html, (err) => (err ? console.log(err) : console.log("Success!")));
+  fs.writeFile("Demo.html", html, (err) => (err ? console.log(err) : console.log("Success!")));
 }
 // run program
 addNewEmployee();
